@@ -1,0 +1,3 @@
+jinja2
+docx2txt
+python-docx

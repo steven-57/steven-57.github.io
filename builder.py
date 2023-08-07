@@ -8,7 +8,7 @@ import docx2txt
 from jinja2 import Environment, FileSystemLoader
 
 source = "sources"
-target = "githubpage"
+target = ""
 image = os.path.join(target, "images")
 
 
@@ -65,7 +65,7 @@ def render(name: str):
     image_folder = os.path.join(image, name)
     if not os.path.exists(image_folder):
         os.makedirs(image_folder)
-    docx2txt.process(os.path.join(source, name + '.docx'), image_folder)
+        docx2txt.process(os.path.join(source, name + '.docx'), image_folder)
     imgs = os.listdir(image_folder)
     imgs.sort(key=lambda x: int(x[5:x.find('.')]))
     it = 0
@@ -105,7 +105,7 @@ def render(name: str):
                         o["eximg_style"] = cmd.get("style", "")
             else:
                 out.append({"img": imgs[it]})
-                true_cnt+=1
+                true_cnt += 1
             it += 1
         if true_cnt:
             out.append({"html": "<br><br>"})
@@ -121,13 +121,13 @@ if __name__ == '__main__':
         if name[0] != "~" and name.endswith(".docx"):
             render(name[:-5])
             o = {"name": name[:-5]}
-            if os.path.exists(os.path.join(source, name[:-5]+".txt")):
-                with open(os.path.join(source, name[:-5]+".txt"), encoding="utf8") as f:
+            if os.path.exists(os.path.join(source, name[:-5] + ".txt")):
+                with open(os.path.join(source, name[:-5] + ".txt"), encoding="utf8") as f:
                     o["description"] = f.read()
             for tp in (".jpg", ".jpeg", ".png"):
-                if os.path.exists(os.path.join(source, name[:-5]+tp)):
-                    o["img"] = name[:-5]+tp
-                    shutil.copyfile(os.path.join(source, name[:-5]+tp), os.path.join(image, name[:-5]+tp))
+                if os.path.exists(os.path.join(source, name[:-5] + tp)):
+                    o["img"] = name[:-5] + tp
+                    shutil.copyfile(os.path.join(source, name[:-5] + tp), os.path.join(image, name[:-5] + tp))
                     break
             l.append(o)
     with open(os.path.join(target, "index.html"), "w", encoding="utf8") as f:
