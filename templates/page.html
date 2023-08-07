@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{% block style %}
+img {
+    margin: 10px;
+    padding: 0px;
+    max-width: 100%;
+}
+p.line_p {
+    margin: 0px;
+    padding: 0px;
+}
+{% endblock %}
+
+{% block main %}
+<h1>{{ name }}</h1>
+    {% for obj in data %}
+        {% if "txt" in obj %}
+            <p class="line_p">
+                {% for o in obj["l"] %}<span style='{{ o[1] }}'>{{ o[0] }}</span>{% endfor %}
+                {% if "eximg" in obj %}
+                <img style="{{ obj['eximg_style'] }}" src="https://steven-57.github.io/images/{{ name }}/{{ obj['eximg'] }}">
+                {% endif %}
+            </p>
+        {% endif %}
+        {% if "img" in obj %}
+        <img src="https://steven-57.github.io/images/{{ name }}/{{ obj['img'] }}">
+        {% endif %}
+        {% if "html" in obj %}{{ obj['html'] }}{% endif %}
+    {% endfor %}
+{% endblock %}

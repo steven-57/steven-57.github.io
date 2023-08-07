@@ -1,0 +1,17 @@
+{
+  "cmds": [
+    {
+      "type": "eximg",
+      "img": "image140.png",
+      "target": "after",
+      "style": "vertical-align: bottom;"
+    },
+    {
+      "type": "addele",
+      "place": "text_para",
+      "pos": "before",
+      "target": "Day",
+      "html": "<hr>"
+    }
+  ]
+}

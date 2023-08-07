@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}目錄{% endblock %}
+{% block head %}<meta name="google-site-verification" content="nFvv7wIMTNWYqDs-A3pV_rzlqL1uwhojEpSTLGB8Dd0" />{% endblock %}
+
+{% block style %}
+img {
+    margin: 10px;
+    padding: 0px;
+    max-width: 100%;
+}
+p.description {
+    color: #555;
+}
+h2.title {
+    color: #000;
+}
+li.content_block {
+    display: inline-block;
+    width: 33.3%;
+}
+a.content_block {
+    text-decoration:none;
+}
+{% endblock %}
+
+
+{% block main %}
+<ul>
+    {% for obj in data %}
+    <li class="content_block"><a class="content_block" href="/{{ obj['name'] }}">
+        {% if "img" in obj %}
+            <img src="https://steven-57.github.io/images/{{ obj['img'] }}">
+        {% endif %}
+        <h2 class="title">{{ obj['name'] }}</h2>
+        {% if "description" in obj %}
+            <p class="description">{{ obj['description'] }}</p>
+        {% endif %}
+    </a></li>
+    {% endfor %}
+</ul>
+{% endblock %}
