@@ -18,12 +18,12 @@ p.line_p {
 <h1>{{ name }}</h1>
     {% for obj in data %}
         {% if "txt" in obj %}
-            <p class="line_p">
+            <{{ obj["tag"] }} class="line_p">
                 {% for o in obj["l"] %}<span style='{{ o[1] }}'>{{ o[0] }}</span>{% endfor %}
                 {% if "eximg" in obj %}
                 <img style="{{ obj['eximg_style'] }}" src="https://steven-57.github.io/images/{{ name }}/{{ obj['eximg'] }}">
                 {% endif %}
-            </p>
+            </{{ obj["tag"] }}>
         {% endif %}
         {% if "img" in obj %}
         <img src="https://steven-57.github.io/images/{{ name }}/{{ obj['img'] }}">

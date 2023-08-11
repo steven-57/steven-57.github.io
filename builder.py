@@ -27,6 +27,9 @@ def render(name: str):
             case "addele":
                 if cmd["place"] == "text_para":
                     para_cmd.append(cmd)
+            case "changetag":
+                if cmd["place"] == "text_para":
+                    para_cmd.append(cmd)
     data = []
     for i, para in enumerate(doc.paragraphs):
         cnt = 0
@@ -74,11 +77,13 @@ def render(name: str):
     wait_eximg = None
     for o, cnt in data:
         if o["txt"]:
+            o["tag"] = "p"
             for cmd in para_cmd:
                 if cmd["place"] == "text_para" and cmd["target"] in o["txt"]:
-                    if cmd["pos"] == "before":
-                        if "html" in cmd:
+                    if cmd["type"] == "addele" and cmd["pos"] == "before" and "html" in cmd:
                             out.append({"html": cmd["html"]})
+                    if cmd["type"] == "changetag":
+                        o["tag"] = cmd["tag"]
             if wait_eximg:
                 o["eximg"] = wait_eximg[0]
                 o["eximg_style"] = wait_eximg[1]
@@ -86,9 +91,8 @@ def render(name: str):
             out.append(o)
             for cmd in para_cmd:
                 if cmd["place"] == "text_para" and cmd["target"] in o["txt"]:
-                    if cmd["pos"] == "after":
-                        if "html" in cmd:
-                            out.append({"html": cmd["html"]})
+                    if cmd["type"] == "addele" and cmd["pos"] == "after" and "html" in cmd:
+                        out.append({"html": cmd["html"]})
             okbr = True
         else:
             if okbr:

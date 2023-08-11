@@ -29,7 +29,7 @@ function initindex() {
     let l2 = null;
     $(".a_header").each(function() {
         let id = $(this).attr("id");
-        let name = $(this).text();
+        let name = $(this).text().trim();
         let l = createli(id,name);
         let pp2 = createcollapse();
         switch ($(this).prop("tagName")) {

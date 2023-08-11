@@ -6,6 +6,12 @@
       "pos": "before",
       "target": "Day",
       "html": "<hr>"
+    },
+    {
+      "type": "changetag",
+      "place": "text_para",
+      "target": "Day",
+      "tag": "h1"
     }
   ]
 }
