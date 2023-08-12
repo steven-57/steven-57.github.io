@@ -5,7 +5,7 @@ function initindex() {
     if (main.find("h1,h2,h3,h4,h5,h6,p,pre,ol,ul").first().prop("tagName") != "H1") {
         main.prepend($("<h1></h1>").text($("title").text()));
     }
-    main.find("h1,h2,h3,h4,h5,h6,p,pre,ol,ul").addClass("a_content");
+    main.find("h1,h2,h3,h4,h5,h6,p,pre,ol,ul,img").addClass("a_content");
     main.find("h1,h2,h3").addClass("a_header");
     let header = "";
     let count = 0;
