@@ -133,8 +133,9 @@ if __name__ == '__main__':
             o = {"name": name[:-5]}
             t = os.path.getmtime(os.path.join(source, name))
             json_file = os.path.join(source, name[:-5] + ".json")
-            if os.path.exists(json_file):
-                t = max(t, os.path.getmtime(json_file))
+            t = max(t, os.path.getmtime(json_file))
+            with open(json_file) as f:
+                o["order"] = json.load(f)["order"]
             o["time"] = max(t, T)
             if os.path.exists(os.path.join(source, name[:-5] + ".txt")):
                 with open(os.path.join(source, name[:-5] + ".txt"), encoding="utf8") as f:
@@ -145,6 +146,7 @@ if __name__ == '__main__':
                     shutil.copyfile(os.path.join(source, name[:-5] + tp), os.path.join(image, name[:-5] + tp))
                     break
             l.append(o)
+    l.sort(key=lambda a: a["order"])
     with open(os.path.join(target, "index.html"), "w", encoding="utf8") as f:
         f.write(env.get_template('index.html').render(data=l))
     sitemap = """<?xml version="1.0" encoding="UTF-8"?>
