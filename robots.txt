@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /sources/
+Disallow: /templates/
+
+Sitemap: https://steven-57.github.io//sitemap.xml

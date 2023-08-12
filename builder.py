@@ -6,10 +6,12 @@ import shutil
 import docx
 import docx2txt
 from jinja2 import Environment, FileSystemLoader
+import urllib.parse
 
 source = "sources"
 target = ""
 image = os.path.join(target, "images")
+import datetime
 
 
 def render(name: str):
@@ -121,10 +123,19 @@ def render(name: str):
 if __name__ == '__main__':
     env = Environment(loader=FileSystemLoader('templates'))
     l = []
+    T = max(os.path.getmtime(r"templates\base.html"),
+            os.path.getmtime(r"templates\page.html"))
+    IT = max(os.path.getmtime(r"templates\base.html"),
+            os.path.getmtime(r"templates\index.html"))
     for name in os.listdir(source):
         if name[0] != "~" and name.endswith(".docx"):
             render(name[:-5])
             o = {"name": name[:-5]}
+            t = os.path.getmtime(os.path.join(source, name))
+            json_file = os.path.join(source, name[:-5]+".json")
+            if os.path.exists(json_file):
+                t = max(t, os.path.getmtime(json_file))
+            o["time"] = max(t, T)
             if os.path.exists(os.path.join(source, name[:-5] + ".txt")):
                 with open(os.path.join(source, name[:-5] + ".txt"), encoding="utf8") as f:
                     o["description"] = f.read()
@@ -136,3 +147,20 @@ if __name__ == '__main__':
             l.append(o)
     with open(os.path.join(target, "index.html"), "w", encoding="utf8") as f:
         f.write(env.get_template('index.html').render(data=l))
+    sitemap = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+"""
+    sitemap+=f"""<url>
+<loc>https://steven-57.github.io/index</loc>
+<lastmod>{datetime.date.fromtimestamp(IT)}</lastmod>
+</url>
+"""
+    for o in l:
+        sitemap+=f"""<url>
+<loc>https://steven-57.github.io/{urllib.parse.quote_plus(o["name"])}</loc>
+<lastmod>{datetime.date.fromtimestamp(o["time"])}</lastmod>
+</url>
+"""
+    sitemap+="</urlset>"
+    with open("sitemap.xml", "w") as f:
+        f.write(sitemap)
