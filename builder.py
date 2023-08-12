@@ -83,7 +83,7 @@ def render(name: str):
             for cmd in para_cmd:
                 if cmd["place"] == "text_para" and cmd["target"] in o["txt"]:
                     if cmd["type"] == "addele" and cmd["pos"] == "before" and "html" in cmd:
-                            out.append({"html": cmd["html"]})
+                        out.append({"html": cmd["html"]})
                     if cmd["type"] == "changetag":
                         o["tag"] = cmd["tag"]
             if wait_eximg:
@@ -117,7 +117,7 @@ def render(name: str):
             out.append({"html": "<br><br>"})
             okbr = False
     with open(os.path.join(target, name + ".html"), "w", encoding="utf8") as f:
-        f.write(env.get_template('page.html').render(data=out, name=name))
+        f.write(env.get_template('page.html').render(data=out, name=name, goodname=urllib.parse.quote_plus(name)))
 
 
 if __name__ == '__main__':
@@ -126,13 +126,13 @@ if __name__ == '__main__':
     T = max(os.path.getmtime(r"templates\base.html"),
             os.path.getmtime(r"templates\page.html"))
     IT = max(os.path.getmtime(r"templates\base.html"),
-            os.path.getmtime(r"templates\index.html"))
+             os.path.getmtime(r"templates\index.html"))
     for name in os.listdir(source):
         if name[0] != "~" and name.endswith(".docx"):
             render(name[:-5])
             o = {"name": name[:-5]}
             t = os.path.getmtime(os.path.join(source, name))
-            json_file = os.path.join(source, name[:-5]+".json")
+            json_file = os.path.join(source, name[:-5] + ".json")
             if os.path.exists(json_file):
                 t = max(t, os.path.getmtime(json_file))
             o["time"] = max(t, T)
@@ -150,17 +150,17 @@ if __name__ == '__main__':
     sitemap = """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 """
-    sitemap+=f"""<url>
+    sitemap += f"""<url>
 <loc>https://steven-57.github.io/index</loc>
 <lastmod>{datetime.date.fromtimestamp(IT)}</lastmod>
 </url>
 """
     for o in l:
-        sitemap+=f"""<url>
+        sitemap += f"""<url>
 <loc>https://steven-57.github.io/{urllib.parse.quote_plus(o["name"])}</loc>
 <lastmod>{datetime.date.fromtimestamp(o["time"])}</lastmod>
 </url>
 """
-    sitemap+="</urlset>"
+    sitemap += "</urlset>"
     with open("sitemap.xml", "w") as f:
         f.write(sitemap)
