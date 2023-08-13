@@ -23,12 +23,12 @@ p.line_p {
             <{{ obj["tag"] }} class="line_p">
                 {% for o in obj["l"] %}<span style='{{ o[1] }}'>{{ o[0] }}</span>{% endfor %}
                 {% if "eximg" in obj %}
-                <img style="{{ obj['eximg_style'] }}" src="https://steven-57.github.io/images/{{ name }}/{{ obj['eximg'] }}">
+                <img style="{{ obj['eximg_style'] }}" data-src="https://steven-57.github.io/images/{{ name }}/{{ obj['eximg'] }}">
                 {% endif %}
             </{{ obj["tag"] }}>
         {% endif %}
         {% if "img" in obj %}
-        <img src="https://steven-57.github.io/images/{{ name }}/{{ obj['img'] }}">
+        <img data-src="https://steven-57.github.io/images/{{ name }}/{{ obj['img'] }}">
         {% endif %}
         {% if "html" in obj %}{{ obj['html'] }}{% endif %}
     {% endfor %}

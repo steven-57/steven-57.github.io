@@ -16,11 +16,12 @@ function initindex() {
         } else {
             $(this).attr("connectedheader", header);
         }
+        watcher.observe(this);
     });
     let index = $("#indexbar");
     let createul = () => $('<ul class="nav"></ul>');
     let createcollapse = () => $('<div class="collapse collapse_for_header"></div>');
-    let createli = (id,name) => $('<li><a href="#' + id + '" class="text-truncate" smoothhashscroll>' + name + '</a></li>');
+    let createli = (id,name) => $('<li><a href="#' + id + '" class="text-truncate">' + name + '</a></li>');
     let p0 = createul();
     index.append(p0);
     let p1 = p0;
@@ -58,25 +59,21 @@ function initindex() {
         }
     });
 }
-
-function update_inview() {
-    $(".a_content").each(function() {
-        let rect = this.getBoundingClientRect();
-        let inView = rect.top >= 0 && rect.left >= 0 && rect.bottom <= $(window).height() && rect.right <= $(window).width();
-        if (inView&&this.parentNode.tagName=="DETAILS"){
-            inView = inView&&this.parentNode.open;
+function onEnterView(entries, observer) {
+    for (let entry of entries) {
+        if (entry.isIntersecting) {
+            $(entry.target).addClass("a_content_inview");
+        }else{
+            $(entry.target).removeClass("a_content_inview");
         }
-        if (inView != $(this).hasClass("a_content_inview")) {
-            if (inView) $(this).addClass("a_content_inview");
-            else $(this).removeClass("a_content_inview");
-        }
-
-    });
-    $(".a_header_targeted").removeClass("a_header_targeted");
+    }
     let o = $(".a_content_inview:first");
     let target = o.attr("connectedheader");
     if (o.hasClass("a_header")) target = o.attr("id");
-    if (target) document.getElementById(target).classList.add("a_header_targeted");
+    if (target) {
+        $(".a_header_targeted").removeClass("a_header_targeted");
+        $("#"+id).addClass("a_header_targeted");
+    }
     $(".activated").removeClass("activated");
     $(".a_header_targeted").each(function() {
         for (let o of actdict[$(this).attr("id")]) {
@@ -91,46 +88,29 @@ function update_inview() {
         }
     });
 }
-
-function initspoiler(){
-    //init template
-    let spoilermap = {};
-    $(".spoiler_template").each(function() {
-        let tttt = $(this);
-        spoilermap[tttt.find("summary").text()]=tttt;
-        tttt.removeClass("spoiler_template");
-    });
-    $(".spoiler_repeat").each(function(){
-        let tttt = $(this);
-        let myname = tttt.text();
-        let got = spoilermap[myname];
-        if (got){
-            tttt.after(got.clone());
+function img_onEnterView(entries, observer) {
+    for (let entry of entries) {
+        if (entry.isIntersecting) {
+            const img = entry.target;
+            img.setAttribute('src', img.dataset.src);
+            img.removeAttribute('data-src');
+            observer.unobserve(img);
         }
-    }).remove();
-    for (let o in spoilermap) spoilermap[o].remove();
-    $("details").next().filter("br").remove();
+    }
 }
-//table style
-main.find("table").addClass("table").addClass("table-striped").addClass("table-bordered");
-//remove empty
-main.find("h1,h2,h3,h4,h5,h6,p,pre,ol,ul").each(function(){
-    if ($(this).text()=="")$(this).remove();
-});
-//init index
+const watcher = new IntersectionObserver(onEnterView);
+const img_watcher = new IntersectionObserver(img_onEnterView);
+for (let image of document.querySelectorAll('img[data-src]')) {
+    img_watcher.observe(image);
+}
 if (!(location.href.endsWith("/") || location.href.endsWith("/index"))) {
     initindex();
-    initspoiler();
 }
-//init view detect
-$(window).on('DOMContentLoaded load resize scroll', update_inview);
-// margin-top
 main.css("margin-top",($("#top_area").height()+4)+"px");
 $("#indexbar").css("margin-top",($("#top_area").height()+24)+"px");
-// a setting
 $("a").each(function(){
     let to = $(this).attr("href");
-    if (((to.includes(".")&&(!to.startsWith(".")))||to.startsWith("http://")||to.startsWith("https://"))&&(!to.includes("littleorange666.github.io"))){
+    if (((to.includes(".")&&(!to.startsWith(".")))||to.startsWith("http://")||to.startsWith("https://"))&&(!to.includes("steven-57.github.io"))){
         $(this).attr("target","_blank");
     }
 })
