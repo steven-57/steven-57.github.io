@@ -15,6 +15,8 @@ p.line_p {
 {% endblock %}
 
 {% block main %}
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_TW/sdk.js#xfbml=1&version=v17.0" nonce="Kp08LQew"></script>
 <h1>{{ name }}</h1>
     {% for obj in data %}
         {% if "txt" in obj %}
@@ -31,21 +33,5 @@ p.line_p {
         {% if "html" in obj %}{{ obj['html'] }}{% endif %}
     {% endfor %}
 <h1>留言版</h1>
-<div id="disqus_thread"></div>
-<script>
-    /**
-    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
-    var disqus_config = function () {
-    this.page.url = "https://steven-57.github.io/{{ goodname }}";  // Replace PAGE_URL with your page's canonical URL variable
-    this.page.identifier = "{{ goodname }}"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-    };
-    (function() { // DON'T EDIT BELOW THIS LINE
-    var d = document, s = d.createElement('script');
-    s.src = 'https://steven57.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<div class="fb-comments" data-href="https://steven-57.github.io/{{ name }}" data-width="" data-numposts="5"></div>
 {% endblock %}
