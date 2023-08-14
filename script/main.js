@@ -22,7 +22,7 @@ function initindex() {
     let index = $("#indexbar");
     let createul = () => $('<ul class="nav"></ul>');
     let createcollapse = () => $('<div class="collapse collapse_for_header"></div>');
-    let createli = (id,name) => $('<li><a data-href="#' + id + '" class="text-truncate a_index">' + name + '</a></li>');
+    let createli = (id,name) => $('<li><a data-href="#' + id + '" class="text-truncate a_index" href>' + name + '</a></li>');
     let p0 = createul();
     index.append(p0);
     let p1 = p0;
