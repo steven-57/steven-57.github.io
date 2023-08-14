@@ -1,5 +1,6 @@
 var main = $("#main_area");
 var actdict = {};
+var $body = (window.opera) ? (document.compatMode == "CSS1Compat" ? $('html') : $('body')) : $('html,body');
 
 function initindex() {
     if (main.find("h1,h2,h3,h4,h5,h6,p,pre,ol,ul").first().prop("tagName") != "H1") {
@@ -21,7 +22,7 @@ function initindex() {
     let index = $("#indexbar");
     let createul = () => $('<ul class="nav"></ul>');
     let createcollapse = () => $('<div class="collapse collapse_for_header"></div>');
-    let createli = (id,name) => $('<li><a href="#' + id + '" class="text-truncate">' + name + '</a></li>');
+    let createli = (id,name) => $('<li><a data-href="#' + id + '" class="text-truncate a_index">' + name + '</a></li>');
     let p0 = createul();
     index.append(p0);
     let p1 = p0;
@@ -57,6 +58,13 @@ function initindex() {
                 actdict[id] = [l, l1, l2];
                 break;
         }
+    });
+    $("a.a_index").on("click", function(event){
+        event.preventDefault();
+        let link = $(this).data("href");
+        history.replaceState({}, "", link);
+        let target_top = $(link).offset().top;
+        $body.scrollTop(target_top);
     });
 }
 function onEnterView(entries, observer) {
