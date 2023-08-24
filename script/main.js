@@ -80,7 +80,7 @@ function onEnterView(entries, observer) {
     if (o.hasClass("a_header")) target = o.attr("id");
     if (target) {
         $(".a_header_targeted").removeClass("a_header_targeted");
-        $("#"+id).addClass("a_header_targeted");
+        $("#"+target).addClass("a_header_targeted");
     }
     $(".activated").removeClass("activated");
     $(".a_header_targeted").each(function() {
@@ -112,8 +112,12 @@ var max_width = document.body.clientWidth*0.6;
 for (let image of document.querySelectorAll('img[data-src]')) {
     let width = +$(image).data("width");
     let height = +$(image).data("height");
-    if (width>max_width) height = height/width*max_width;
+    if (width>max_width) {
+        height = height/width*max_width;
+        width = max_width;
+    }
     $(image).css("height",height+"px");
+    $(image).css("width",width+"px");
     img_watcher.observe(image);
 }
 if (!(location.href.endsWith("/") || location.href.endsWith("/index"))) {
