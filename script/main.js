@@ -108,7 +108,12 @@ function img_onEnterView(entries, observer) {
 }
 const watcher = new IntersectionObserver(onEnterView);
 const img_watcher = new IntersectionObserver(img_onEnterView);
+var max_width = document.body.clientWidth*0.6;
 for (let image of document.querySelectorAll('img[data-src]')) {
+    let width = +$(image).data("width");
+    let height = +$(image).data("height");
+    if (width>max_width) height = height/width*max_width;
+    $(image).css("height",height+"px");
     img_watcher.observe(image);
 }
 if (!(location.href.endsWith("/") || location.href.endsWith("/index"))) {

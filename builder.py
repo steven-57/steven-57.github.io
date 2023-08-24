@@ -12,6 +12,13 @@ source = "sources"
 target = ""
 image = os.path.join(target, "images")
 import datetime
+from PIL import Image
+
+
+def getimgdata(name: str, path: str):
+    filename = os.path.join("images", name, path)
+    img = Image.open(filename)
+    return {"path": path, "width": img.width, "height": img.height}
 
 
 def render(name: str):
@@ -87,7 +94,7 @@ def render(name: str):
                     if cmd["type"] == "changetag":
                         o["tag"] = cmd["tag"]
             if wait_eximg:
-                o["eximg"] = wait_eximg[0]
+                o["eximg"] = getimgdata(name, wait_eximg[0])
                 o["eximg_style"] = wait_eximg[1]
                 wait_eximg = None
             out.append(o)
@@ -110,7 +117,7 @@ def render(name: str):
                         out[-1]["eximg"] = imgs[it]
                         o["eximg_style"] = cmd.get("style", "")
             else:
-                out.append({"img": imgs[it]})
+                out.append({"img": getimgdata(name, imgs[it])})
                 true_cnt += 1
             it += 1
         if true_cnt:
