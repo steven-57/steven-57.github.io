@@ -22,6 +22,7 @@ def getimgdata(name: str, path: str):
 
 
 def render(name: str):
+    print(name)
     doc = docx.Document(os.path.join(source, name + '.docx'))
     cmds = []
     if os.path.exists(os.path.join(source, name + '.json')):
