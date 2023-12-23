@@ -108,6 +108,8 @@ def render(name: str):
                 out.append({"html": "<br>"})
         true_cnt = 0
         for _ in range(cnt):
+            if it>=len(imgs):
+                break
             cmd = img_cmd.get(imgs[it], None)
             if cmd:
                 if cmd["type"] == "eximg":
