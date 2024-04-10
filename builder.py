@@ -157,6 +157,8 @@ if __name__ == '__main__':
                     break
             l.append(o)
     l.sort(key=lambda a: a["order"])
+    for o in l:
+        print(o["order"],o["name"])
     with open(os.path.join(target, "index.html"), "w", encoding="utf8") as f:
         f.write(env.get_template('index.html').render(data=l))
     sitemap = """<?xml version="1.0" encoding="UTF-8"?>
