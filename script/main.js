@@ -96,11 +96,12 @@ function onEnterView(entries, observer) {
         }
     });
 }
+const base_url = "https://steven-57.github.io/images/";
 function img_onEnterView(entries, observer) {
     for (let entry of entries) {
         if (entry.isIntersecting) {
             const img = entry.target;
-            img.setAttribute('src', img.dataset.src);
+            img.setAttribute('src', base_url+img.dataset.src);
             img.removeAttribute('data-src');
             observer.unobserve(img);
         }
@@ -109,6 +110,28 @@ function img_onEnterView(entries, observer) {
 const watcher = new IntersectionObserver(onEnterView);
 const img_watcher = new IntersectionObserver(img_onEnterView);
 var max_width = document.body.clientWidth*0.6;
+for (let group of document.querySelectorAll('.image-container')) {
+    let images = $(group).find('img');
+    let min_height = 10000;
+    for (let image of images) {
+        let height = +$(image).data("height");
+        if (height<min_height) min_height = height;
+    }
+    let total_width = 0;
+    for (let image of images) {
+        let width = +$(image).data("width");
+        total_width += width;
+    }
+    let mul = 1;
+    if (total_width>max_width) mul = max_width/total_width;
+    for (let image of images) {
+        let w = +$(image).data("width");
+        let h = +$(image).data("height");
+        let my_mul = mul*height/h;
+        $(image).data("width",w*my_mul);
+        $(image).data("height",h*my_mul);
+    }
+}
 for (let image of document.querySelectorAll('img[data-src]')) {
     let width = +$(image).data("width");
     let height = +$(image).data("height");

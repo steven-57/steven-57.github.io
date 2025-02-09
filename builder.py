@@ -2,10 +2,12 @@
 import hashlib
 import os
 import json
+import re
 import shutil
 
 import docx
 import docx2txt
+from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 import urllib.parse
 
@@ -21,12 +23,22 @@ def getimgdata(name: str, path: str):
     img = Image.open(filename)
     return {"path": path, "width": img.width, "height": img.height}
 
+
 def get_file_hash(file_path):
     hasher = hashlib.md5()
     with open(file_path, 'rb') as f:
         buf = f.read()
         hasher.update(buf)
     return hasher.hexdigest()
+
+
+def clean_html_with_soup(html_content):
+    soup = BeautifulSoup(html_content, "html.parser")
+    # 重新格式化 HTML 去除多餘空白
+    html_content = soup.prettify()
+    cleaned_html = re.sub(r'\n\s*', '', html_content)
+    return cleaned_html.strip()
+
 
 def render(name: str):
     print(name)
@@ -47,10 +59,21 @@ def render(name: str):
             case "changetag":
                 if cmd["place"] == "text_para":
                     para_cmd.append(cmd)
+    styles = []
+    stylemap = {}
+
+    def get_class(style):
+        if style in stylemap:
+            return stylemap[style]
+        stylemap[style] = f"style{len(styles)}"
+        styles.append(f".style{len(styles)} {{{style}}}")
+        return stylemap[style]
+
     data = []
     for i, para in enumerate(doc.paragraphs):
         txt = para._p.xml
         cnt = txt.count("<pic:nvPicPr>")
+        gp = "<wpg:wgp>" in txt
         o = {"txt": para.text, "l": []}
         for run in para.runs:
             xml = run._r.xml
@@ -75,8 +98,8 @@ def render(name: str):
                     if R < END:
                         fonts.append(f'"{xml[L + 1:R]}"')
                 style += f"font-family:{' '.join(fonts)};"
-            o["l"].append([run.text, style])
-        data.append([o, cnt])
+            o["l"].append([run.text, get_class(style)])
+        data.append([o, cnt, gp])
     image_folder = os.path.join(image, name)
     if not os.path.exists(image_folder):
         os.makedirs(image_folder)
@@ -95,7 +118,7 @@ def render(name: str):
     out = []
     okbr = True
     wait_eximg = None
-    for o, cnt in data:
+    for o, cnt, gp in data:
         if o["txt"]:
             o["tag"] = "p"
             for cmd in para_cmd:
@@ -118,8 +141,10 @@ def render(name: str):
             if okbr:
                 out.append({"html": "<br>"})
         true_cnt = 0
+        if gp:
+            out.append({"html": '<div class="image-container">'})
         for _ in range(cnt):
-            if it>=len(imgs):
+            if it >= len(imgs):
                 break
             cmd = img_cmd.get(imgs[it], None)
             if cmd:
@@ -133,11 +158,15 @@ def render(name: str):
                 out.append({"img": getimgdata(name, imgs[it])})
                 true_cnt += 1
             it += 1
+        if gp:
+            out.append({"html": '</div>'})
         if true_cnt:
             out.append({"html": "<br><br>"})
             okbr = False
     with open(os.path.join(target, name + ".html"), "w", encoding="utf8") as f:
-        f.write(env.get_template('page.html').render(data=out, name=name, goodname=urllib.parse.quote_plus(name)))
+        res = env.get_template('page.html').render(
+            data=out, name=name, goodname=urllib.parse.quote_plus(name), styles=styles)
+        f.write(clean_html_with_soup(res))
 
 
 if __name__ == '__main__':
@@ -168,7 +197,7 @@ if __name__ == '__main__':
             l.append(o)
     l.sort(key=lambda a: a["order"])
     for o in l:
-        print(o["order"],o["name"])
+        print(o["order"], o["name"])
     with open(os.path.join(target, "index.html"), "w", encoding="utf8") as f:
         f.write(env.get_template('index.html').render(data=l))
     sitemap = """<?xml version="1.0" encoding="UTF-8"?>

@@ -12,6 +12,13 @@ p.line_p {
     margin: 0px;
     padding: 0px;
 }
+.image-container {
+  display: flex;
+  justify-content: space-between;
+}
+{% for st in styles %}
+{{ st }}
+{% endfor %}
 {% endblock %}
 
 {% block main %}
@@ -21,15 +28,15 @@ p.line_p {
     {% for obj in data %}
         {% if "txt" in obj %}
             <{{ obj["tag"] }} class="line_p">
-                {% for o in obj["l"] %}<span style='{{ o[1] }}'>{{ o[0] }}</span>{% endfor %}
+                {% for o in obj["l"] %}<span class='{{ o[1] }}'>{{ o[0] }}</span>{% endfor %}
                 {% if "eximg" in obj %}
-                <img style="{{ obj['eximg_style'] }}" data-src="https://steven-57.github.io/images/{{ name }}/{{ obj['eximg']['path'] }}"
+                <img style="{{ obj['eximg_style'] }}" data-src="{{ name }}/{{ obj['eximg']['path'] }}"
                 data-width="{{ obj['eximg']['width'] }}" data-height="{{ obj['eximg']['height'] }}">
                 {% endif %}
             </{{ obj["tag"] }}>
         {% endif %}
         {% if "img" in obj %}
-        <img data-src="https://steven-57.github.io/images/{{ name }}/{{ obj['img']['path'] }}"
+        <img data-src="{{ name }}/{{ obj['img']['path'] }}"
         data-width="{{ obj['img']['width'] }}" data-height="{{ obj['img']['height'] }}">
         {% endif %}
         {% if "html" in obj %}{{ obj['html'] }}{% endif %}
