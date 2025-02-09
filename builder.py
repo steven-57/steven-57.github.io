@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import hashlib
 import os
 import json
 import shutil
@@ -20,6 +21,12 @@ def getimgdata(name: str, path: str):
     img = Image.open(filename)
     return {"path": path, "width": img.width, "height": img.height}
 
+def get_file_hash(file_path):
+    hasher = hashlib.md5()
+    with open(file_path, 'rb') as f:
+        buf = f.read()
+        hasher.update(buf)
+    return hasher.hexdigest()
 
 def render(name: str):
     print(name)
@@ -42,13 +49,8 @@ def render(name: str):
                     para_cmd.append(cmd)
     data = []
     for i, para in enumerate(doc.paragraphs):
-        cnt = 0
         txt = para._p.xml
-        if 'graphicData' in txt:
-            x = txt.find('graphicData')
-            while x != -1:
-                cnt += 1
-                x = txt.find('graphicData', x + 1)
+        cnt = txt.count("<pic:nvPicPr>")
         o = {"txt": para.text, "l": []}
         for run in para.runs:
             xml = run._r.xml
@@ -74,13 +76,21 @@ def render(name: str):
                         fonts.append(f'"{xml[L + 1:R]}"')
                 style += f"font-family:{' '.join(fonts)};"
             o["l"].append([run.text, style])
-        data.append([o, cnt // 2])
+        data.append([o, cnt])
     image_folder = os.path.join(image, name)
     if not os.path.exists(image_folder):
         os.makedirs(image_folder)
         docx2txt.process(os.path.join(source, name + '.docx'), image_folder)
-    imgs = os.listdir(image_folder)
-    imgs.sort(key=lambda x: int(x[5:x.find('.')]))
+    all_imgs = os.listdir(image_folder)
+    all_imgs.sort(key=lambda x: int(x[5:x.find('.')]))
+    imgs = []
+    used_hash = set()
+    for img in all_imgs:
+        hash_val = get_file_hash(os.path.join(image_folder, img))
+        if hash_val in used_hash:
+            continue
+        used_hash.add(hash_val)
+        imgs.append(img)
     it = 0
     out = []
     okbr = True
