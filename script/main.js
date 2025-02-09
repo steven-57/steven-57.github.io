@@ -127,7 +127,7 @@ for (let group of document.querySelectorAll('.image-container')) {
     for (let image of images) {
         let w = +$(image).data("width");
         let h = +$(image).data("height");
-        let my_mul = mul*height/h;
+        let my_mul = mul*min_height/h;
         $(image).data("width",w*my_mul);
         $(image).data("height",h*my_mul);
     }
