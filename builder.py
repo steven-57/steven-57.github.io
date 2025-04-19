@@ -10,6 +10,8 @@ import docx2txt
 from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 import urllib.parse
+import zipfile
+from lxml import etree
 
 source = "sources"
 target = ""
@@ -39,10 +41,68 @@ def clean_html_with_soup(html_content):
     cleaned_html = re.sub(r'\n\s*', '', html_content)
     return cleaned_html.strip()
 
+def parse_docx_with_lxml(filepath,get_class):
+    data = []
+    parser = etree.XMLParser(huge_tree=True)
+    # unzip docx
+    with zipfile.ZipFile(filepath) as docx_zip:
+        with docx_zip.open('word/document.xml') as f:
+            tree = etree.parse(f, parser=parser)
+
+    # 定義 namespaces
+    namespaces = {
+        "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
+        "pic": "http://schemas.openxmlformats.org/drawingml/2006/picture",
+        "wpg": "http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
+    }
+
+    paragraphs = tree.xpath("//w:p", namespaces=namespaces)
+
+    for p in paragraphs:
+        xml_string = etree.tostring(p, encoding="unicode")
+        cnt = xml_string.count("<pic:nvPicPr>")
+        gp = "<wpg:wgp>" in xml_string
+
+        o = {"txt": "".join(p.xpath(".//w:t/text()", namespaces=namespaces)), "l": []}
+
+        runs = p.xpath(".//w:r", namespaces=namespaces)
+        for run in runs:
+            text = "".join(run.xpath(".//w:t/text()", namespaces=namespaces))
+            style = ""
+
+            # 字型大小（w:szCs）
+            szcs = run.xpath(".//w:szCs", namespaces=namespaces)
+            if szcs:
+                val = szcs[0].get(f"{{{namespaces['w']}}}val")
+                if val:
+                    style += f"font-size:{val}px;"
+
+            # 顏色（w:color）
+            color = run.xpath(".//w:color", namespaces=namespaces)
+            if color:
+                val = color[0].get(f"{{{namespaces['w']}}}val")
+                if val:
+                    style += f"color:#{val};"
+
+            # 字型（w:rFonts）
+            fonts = run.xpath(".//w:rFonts", namespaces=namespaces)
+            if fonts:
+                font_vals = []
+                for attr in ['ascii', 'hAnsi', 'cs', 'eastAsia']:
+                    val = fonts[0].get(f"{{{namespaces['w']}}}{attr}")
+                    if val:
+                        font_vals.append(f'"{val}"')
+                if font_vals:
+                    style += f"font-family:{' '.join(font_vals)};"
+
+            o["l"].append([text, get_class(style)])
+
+        data.append([o, cnt, gp])
+
+    return data
 
 def render(name: str):
     print(name)
-    doc = docx.Document(os.path.join(source, name + '.docx'))
     cmds = []
     if os.path.exists(os.path.join(source, name + '.json')):
         with open(os.path.join(source, name + '.json'), encoding="utf8") as f:
@@ -61,15 +121,15 @@ def render(name: str):
                     para_cmd.append(cmd)
     styles = []
     stylemap = {}
-
+    data = []
     def get_class(style):
         if style in stylemap:
             return stylemap[style]
         stylemap[style] = f"style{len(styles)}"
         styles.append(f".style{len(styles)} {{{style}}}")
         return stylemap[style]
-
-    data = []
+    """
+    doc = docx.Document(os.path.join(source, name + '.docx'))
     for i, para in enumerate(doc.paragraphs):
         txt = para._p.xml
         cnt = txt.count("<pic:nvPicPr>")
@@ -100,6 +160,8 @@ def render(name: str):
                 style += f"font-family:{' '.join(fonts)};"
             o["l"].append([run.text, get_class(style)])
         data.append([o, cnt, gp])
+        """
+    data = parse_docx_with_lxml(os.path.join(source, name + '.docx'),get_class)
     image_folder = os.path.join(image, name)
     if not os.path.exists(image_folder):
         os.makedirs(image_folder)
