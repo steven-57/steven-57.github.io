@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 import hashlib
-import os
 import json
+import os
 import re
 import shutil
+import urllib.parse
+import zipfile
 
-import docx
 import docx2txt
 from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
-import urllib.parse
-import zipfile
 from lxml import etree
 
 source = "sources"
@@ -41,7 +40,18 @@ def clean_html_with_soup(html_content):
     cleaned_html = re.sub(r'\n\s*', '', html_content)
     return cleaned_html.strip()
 
-def parse_docx_with_lxml(filepath,get_class):
+
+def parse_docx_with_lxml(filepath):
+    styles = []
+    stylemap = {}
+
+    def get_class(style):
+        if style in stylemap:
+            return stylemap[style]
+        stylemap[style] = f"style{len(styles)}"
+        styles.append(f".style{len(styles)} {{{style}}}")
+        return stylemap[style]
+
     data = []
     parser = etree.XMLParser(huge_tree=True)
     # unzip docx
@@ -99,7 +109,20 @@ def parse_docx_with_lxml(filepath,get_class):
 
         data.append([o, cnt, gp])
 
-    return data
+    return data, styles
+
+
+line_max = 4
+
+
+def count_line(cnt):
+    if cnt <= line_max:
+        return cnt
+    v = 1
+    while (cnt - 1 + v) // v > line_max:
+        v += 1
+    return (cnt - 1 + v) // v
+
 
 def render(name: str):
     print(name)
@@ -119,49 +142,7 @@ def render(name: str):
             case "changetag":
                 if cmd["place"] == "text_para":
                     para_cmd.append(cmd)
-    styles = []
-    stylemap = {}
-    data = []
-    def get_class(style):
-        if style in stylemap:
-            return stylemap[style]
-        stylemap[style] = f"style{len(styles)}"
-        styles.append(f".style{len(styles)} {{{style}}}")
-        return stylemap[style]
-    """
-    doc = docx.Document(os.path.join(source, name + '.docx'))
-    for i, para in enumerate(doc.paragraphs):
-        txt = para._p.xml
-        cnt = txt.count("<pic:nvPicPr>")
-        gp = "<wpg:wgp>" in txt
-        o = {"txt": para.text, "l": []}
-        for run in para.runs:
-            xml = run._r.xml
-            style = ""
-            if "w:szCs" in xml:
-                L = xml.find("\"", xml.find("w:szCs"))
-                R = xml.find("\"", L + 1)
-                style += f"font-size:{xml[L + 1:R]}px;"
-            if "w:color" in xml:
-                L = xml.find("\"", xml.find("w:color"))
-                R = xml.find("\"", L + 1)
-                style += f"color:#{xml[L + 1:R]};"
-            if "w:rFonts" in xml:
-                R = xml.find("w:rFonts")
-                END = xml.find(">", R)
-                fonts = []
-                while R < END:
-                    L = xml.find("\"", R + 1)
-                    R = xml.find("\"", L + 1)
-                    if L == -1:
-                        break
-                    if R < END:
-                        fonts.append(f'"{xml[L + 1:R]}"')
-                style += f"font-family:{' '.join(fonts)};"
-            o["l"].append([run.text, get_class(style)])
-        data.append([o, cnt, gp])
-        """
-    data = parse_docx_with_lxml(os.path.join(source, name + '.docx'),get_class)
+    data, styles = parse_docx_with_lxml(os.path.join(source, name + '.docx'))
     image_folder = os.path.join(image, name)
     if not os.path.exists(image_folder):
         os.makedirs(image_folder)
@@ -205,7 +186,8 @@ def render(name: str):
         true_cnt = 0
         if gp:
             out.append({"html": '<div class="image-container">'})
-        for _ in range(cnt):
+        sp = count_line(cnt)
+        for idx in range(cnt):
             if it >= len(imgs):
                 break
             cmd = img_cmd.get(imgs[it], None)
@@ -220,6 +202,9 @@ def render(name: str):
                 out.append({"img": getimgdata(name, imgs[it])})
                 true_cnt += 1
             it += 1
+            if cnt > idx + 1 and idx % sp == sp - 1:
+                out.append({"html": '</div>'})
+                out.append({"html": '<div class="image-container">'})
         if gp:
             out.append({"html": '</div>'})
         if true_cnt:
