@@ -119,7 +119,7 @@ for (let group of document.querySelectorAll('.image-container')) {
     }
     let total_width = 0;
     for (let image of images) {
-        let width = +$(image).data("width");
+        let width = +$(image).data("width")*min_height/+$(image).data("height");
         total_width += width;
     }
     let mul = 1;
@@ -139,8 +139,8 @@ for (let image of document.querySelectorAll('img[data-src]')) {
         height = height/width*max_width;
         width = max_width;
     }
-    $(image).css("height",height+"px");
-    $(image).css("width",width+"px");
+    $(image).css("width",width/max_width*100+"%");
+    $(image).css("aspect-ratio",height+"/"+width);
     img_watcher.observe(image);
 }
 if (!(location.href.endsWith("/") || location.href.endsWith("/index"))) {
