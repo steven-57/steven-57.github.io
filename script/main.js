@@ -123,7 +123,7 @@ for (let group of document.querySelectorAll('.image-container')) {
         total_width += width;
     }
     let mul = 1;
-    if (total_width>max_width) mul = max_width/total_width;
+    mul = max_width/total_width;
     for (let image of images) {
         let w = +$(image).data("width");
         let h = +$(image).data("height");
