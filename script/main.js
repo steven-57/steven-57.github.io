@@ -140,7 +140,7 @@ for (let image of document.querySelectorAll('img[data-src]')) {
         width = max_width;
     }
     $(image).css("width",width/max_width*100+"%");
-    $(image).css("aspect-ratio",height+"/"+width);
+    $(image).css("aspect-ratio",width+"/"+height);
     img_watcher.observe(image);
 }
 if (!(location.href.endsWith("/") || location.href.endsWith("/index"))) {
