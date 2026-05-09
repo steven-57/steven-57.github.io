@@ -14,7 +14,22 @@ p.line_p {
 }
 .image-container {
   display: flex;
-  justify-content: space-between;
+  width: 100%;
+  margin: 0 auto;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.img-wrapper {
+  position: relative;
+  height: auto;
+}
+
+.img-wrapper img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
 }
 {% for st in styles %}
 {{ st }}

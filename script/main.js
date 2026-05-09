@@ -110,28 +110,25 @@ function img_onEnterView(entries, observer) {
 const watcher = new IntersectionObserver(onEnterView);
 const img_watcher = new IntersectionObserver(img_onEnterView);
 var max_width = document.body.clientWidth*0.6;
-for (let group of document.querySelectorAll('.image-container')) {
-    let images = $(group).find('img');
-    let min_height = 10000;
-    for (let image of images) {
-        let height = +$(image).data("height");
-        if (height<min_height) min_height = height;
-    }
-    let total_width = 0;
-    for (let image of images) {
-        let width = +$(image).data("width");
-        total_width += width;
-    }
-    let mul = 1;
-    mul = max_width/total_width;
-    for (let image of images) {
-        let w = +$(image).data("width");
-        let h = +$(image).data("height");
-        let my_mul = mul*min_height/h;
-        $(image).data("width",w*my_mul);
-        $(image).data("height",h*my_mul);
-    }
-}
+$('.image-container').each(function() {
+    const $container = $(this);
+    const $images = $container.find('img');
+
+    $images.each(function() {
+        const $img = $(this);
+        const w = +$img.data("width");
+        const h = +$img.data("height");
+
+        const aspectRatio = w / h;
+
+        const $wrapper = $('<div class="img-wrapper"></div>').css({
+            'flex-grow': aspectRatio,
+            'flex-basis': (aspectRatio * 100) + 'px'
+        });
+
+        $img.wrap($wrapper);
+    });
+});
 for (let image of document.querySelectorAll('img[data-src]')) {
     let width = +$(image).data("width");
     let height = +$(image).data("height");
