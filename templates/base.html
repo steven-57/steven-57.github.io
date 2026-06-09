@@ -31,6 +31,20 @@
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="/">目錄</a>
         </li>
+        {% if years %}
+        {% for year, posts in years.items() %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown{{ year }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ year }}
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown{{ year }}">
+            {% for post in posts %}
+            <li><a class="dropdown-item" href="/{{ post['name'] }}">{{ post['name'] }}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endfor %}
+        {% endif %}
       </ul>
     </div>
   </div>

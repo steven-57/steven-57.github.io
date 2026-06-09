@@ -124,7 +124,7 @@ def count_line(cnt):
     return (cnt - 1 + v) // v
 
 
-def render(name: str):
+def render(name: str, years: dict):
     print(name)
     cmds = []
     if os.path.exists(os.path.join(source, name + '.json')):
@@ -236,7 +236,7 @@ def render(name: str):
             okbr = False
     with open(os.path.join(target, name + ".html"), "w", encoding="utf8") as f:
         res = env.get_template('page.html').render(
-            data=out, name=name, goodname=urllib.parse.quote_plus(name), styles=styles)
+            data=out, name=name, goodname=urllib.parse.quote_plus(name), styles=styles, years=years)
         f.write(clean_html_with_soup(res))
 
 
@@ -249,7 +249,6 @@ if __name__ == '__main__':
              os.path.getmtime(r"templates\index.html"))
     for name in os.listdir(source):
         if name[0] != "~" and name.endswith(".docx"):
-            render(name[:-5])
             o = {"name": name[:-5]}
             t = os.path.getmtime(os.path.join(source, name))
             json_file = os.path.join(source, name[:-5] + ".json")
@@ -282,10 +281,19 @@ if __name__ == '__main__':
                     break
             l.append(o)
     l.sort(key=lambda a: a["order"])
+    years_dict = {}
     for o in l:
         print(o["order"], o["name"])
+        year = str(abs(o["order"]))[:4]
+        if year not in years_dict:
+            years_dict[year] = []
+        years_dict[year].append(o)
+        
+    for o in l:
+        render(o["name"], years_dict)
+        
     with open(os.path.join(target, "index.html"), "w", encoding="utf8") as f:
-        f.write(env.get_template('index.html').render(data=l))
+        f.write(env.get_template('index.html').render(data=l, years=years_dict))
     sitemap = """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 """
