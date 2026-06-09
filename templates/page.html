@@ -3,10 +3,15 @@
 {% block title %}{{ name }}{% endblock %}
 
 {% block style %}
-img {
+.image-wrapper {
     margin: 10px;
+    display: inline-block;
+}
+img {
+    margin: 0px;
     padding: 0px;
     max-width: 100%;
+    display: block;
 }
 p.line_p {
     margin: 0px;
@@ -30,17 +35,21 @@ p.line_p {
             <{{ obj["tag"] }} class="line_p">
                 {% for o in obj["l"] %}<span class='{{ o[1] }}'>{{ o[0] }}</span>{% endfor %}
                 {% if "eximg" in obj %}
-                <img style="{{ obj['eximg_style'] }}" data-src="{{ name }}/{{ obj['eximg']['path'] }}"
-                data-width="{{ obj['eximg']['width'] }}" data-height="{{ obj['eximg']['height'] }}">
+                <a href="https://steven-57.github.io/images/{{ name }}/{{ obj['eximg']['path'] }}" data-fancybox="gallery" class="image-wrapper">
+                    <img style="{{ obj['eximg_style'] }}" data-src="{{ name }}/{{ obj['eximg']['path'] }}"
+                    data-width="{{ obj['eximg']['width'] }}" data-height="{{ obj['eximg']['height'] }}">
+                </a>
                 {% endif %}
             </{{ obj["tag"] }}>
         {% endif %}
         {% if "img" in obj %}
-        <img data-src="{{ name }}/{{ obj['img']['path'] }}"
-        data-width="{{ obj['img']['width'] }}" data-height="{{ obj['img']['height'] }}">
+        <a href="https://steven-57.github.io/images/{{ name }}/{{ obj['img']['path'] }}" data-fancybox="gallery" class="image-wrapper">
+            <img data-src="{{ name }}/{{ obj['img']['path'] }}"
+            data-width="{{ obj['img']['width'] }}" data-height="{{ obj['img']['height'] }}">
+        </a>
         {% endif %}
         {% if "html" in obj %}{{ obj['html'] }}{% endif %}
     {% endfor %}
 <h1>留言版</h1>
-<div class="fb-comments" data-href="https://steven-57.github.io/{{ name }}" data-width="1000" data-numposts="5"></div>
+<div class="fb-comments" data-href="https://steven-57.github.io/{{ name }}" data-width="100%" data-numposts="5"></div>
 {% endblock %}

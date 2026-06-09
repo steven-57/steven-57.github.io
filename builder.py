@@ -135,7 +135,8 @@ def render(name: str):
     for cmd in cmds:
         match cmd["type"]:
             case "eximg":
-                img_cmd[cmd["img"]] = cmd
+                base_name = os.path.splitext(cmd["img"])[0]
+                img_cmd[base_name] = cmd
             case "addele":
                 if cmd["place"] == "text_para":
                     para_cmd.append(cmd)
@@ -152,10 +153,32 @@ def render(name: str):
     imgs = []
     used_hash = set()
     for img in all_imgs:
-        hash_val = get_file_hash(os.path.join(image_folder, img))
+        img_path = os.path.join(image_folder, img)
+        hash_val = get_file_hash(img_path)
         if hash_val in used_hash:
             continue
         used_hash.add(hash_val)
+
+        if not img.endswith('.webp'):
+            try:
+                with Image.open(img_path) as im:
+                    max_width = 1200
+                    if im.width > max_width:
+                        ratio = max_width / im.width
+                        new_height = int(im.height * ratio)
+                        im = im.resize((max_width, new_height), Image.Resampling.LANCZOS)
+                    
+                    webp_img = os.path.splitext(img)[0] + '.webp'
+                    webp_path = os.path.join(image_folder, webp_img)
+                    if im.mode in ("RGBA", "P"): 
+                        im = im.convert("RGB")
+                    im.save(webp_path, 'WEBP', quality=80)
+                
+                os.remove(img_path)
+                img = webp_img
+            except Exception as e:
+                print(f"Error optimizing {img}: {e}")
+
         imgs.append(img)
     it = 0
     out = []
@@ -190,7 +213,8 @@ def render(name: str):
         for idx in range(cnt):
             if it >= len(imgs):
                 break
-            cmd = img_cmd.get(imgs[it], None)
+            base_img_name = os.path.splitext(imgs[it])[0]
+            cmd = img_cmd.get(base_img_name, None)
             if cmd:
                 if cmd["type"] == "eximg":
                     if cmd["target"] == "after":
@@ -238,8 +262,23 @@ if __name__ == '__main__':
                     o["description"] = f.read()
             for tp in (".jpg", ".jpeg", ".png"):
                 if os.path.exists(os.path.join(source, name[:-5] + tp)):
-                    o["img"] = name[:-5] + tp
-                    shutil.copyfile(os.path.join(source, name[:-5] + tp), os.path.join(image, name[:-5] + tp))
+                    img_path = os.path.join(source, name[:-5] + tp)
+                    webp_img = name[:-5] + ".webp"
+                    o["img"] = webp_img
+                    try:
+                        with Image.open(img_path) as im:
+                            max_width = 800
+                            if im.width > max_width:
+                                ratio = max_width / im.width
+                                new_height = int(im.height * ratio)
+                                im = im.resize((max_width, new_height), Image.Resampling.LANCZOS)
+                            if im.mode in ("RGBA", "P"): 
+                                im = im.convert("RGB")
+                            im.save(os.path.join(image, webp_img), 'WEBP', quality=80)
+                    except Exception as e:
+                        print(f"Error optimizing cover {img_path}: {e}")
+                        o["img"] = name[:-5] + tp
+                        shutil.copyfile(img_path, os.path.join(image, name[:-5] + tp))
                     break
             l.append(o)
     l.sort(key=lambda a: a["order"])

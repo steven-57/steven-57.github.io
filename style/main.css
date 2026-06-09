@@ -1,71 +1,166 @@
+body {
+    font-family: 'Inter', 'Noto Sans TC', sans-serif;
+    color: #333;
+    line-height: 1.8;
+    background-color: #fcfcfc;
+}
+
 #top_area {
     position: fixed;
-    left: 0px;
-    right: 0px;
-    z-index: 100;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
 #main_area {
     position: relative;
-    margin-left: 20%;
-    margin-right: 20%;
-    font-family: "微軟正黑UI";
-    font-size: 30px;
-    float: left;
-    width: 60%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 100px 20px 60px; /* Top padding clears the fixed navbar */
+    font-size: 18px;
 }
 
 #indexbar {
     position: fixed;
-    left: 0px;
-    right: 0px;
-    margin-left: 5%;
-    margin-right: 80%;
-    width: 15%;
+    top: 100px;
+    left: calc(50% - 680px); /* Position it to the left of main content on large screens */
+    width: 250px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-right: 15px;
 }
 
 #indexbar a {
-    background-color: transparent;
     text-decoration: none;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: pre;
-    position: relative;
+    white-space: nowrap;
     color: #767676;
-    font-size: 12px;
+    font-size: 14px;
     display: block;
+    padding: 4px 0 4px 10px;
+    transition: color 0.2s ease;
+}
+
+#indexbar a:hover {
+    color: #000;
 }
 
 #indexbar .activated>a {
     color: #000;
-    background-color: transparent;
-    border-left: 2px solid #000;
+    font-weight: 600;
+    border-left: 3px solid #0d6efd;
+    padding-left: 7px;
 }
 
 #indexbar ul {
+    list-style: none;
+    padding-left: 15px;
+    margin-bottom: 0;
+}
+
+/* Card Grid layout */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.card-item {
     display: block;
-    margin-left: 15px;
 }
 
-#indexbar li {
+.card-link {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    color: inherit;
+}
+
+.card-link:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    color: inherit;
+}
+
+.card-image-wrapper {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #f0f0f0;
+}
+
+.card-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     display: block;
+    margin: 0 !important;
 }
 
-.copy_btn {
-    background-color: rgba(255, 255, 255, 0.2);
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    font-size: 10px;
-    padding: 0px;
-    margin: 0px;
-    border: 0px;
+.card-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
-.spoiler_template {
-    display: none;
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 10px;
+    line-height: 1.4;
 }
 
-.spoiler_repeat {
+.card-desc {
+    color: #666;
+    font-size: 15px;
+    margin-bottom: 0;
+}
+
+/* Typography */
+h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 1.5rem; color: #1a1a1a; }
+h2 { font-size: 1.8rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; color: #2a2a2a; }
+h3 { font-size: 1.5rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 1rem; color: #3a3a3a; }
+p.line_p { margin-bottom: 1rem; }
+
+/* Responsive Media Queries */
+@media (max-width: 1400px) {
+    #indexbar {
+        left: 20px;
+        width: 200px;
+    }
+}
+
+@media (max-width: 1100px) {
+    #indexbar {
+        display: none;
+    }
+}
+
+.copy_btn, .spoiler_template, .spoiler_repeat {
     display: none;
 }

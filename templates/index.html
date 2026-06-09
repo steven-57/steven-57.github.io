@@ -4,45 +4,31 @@
 {% block head %}<meta name="google-site-verification" content="nFvv7wIMTNWYqDs-A3pV_rzlqL1uwhojEpSTLGB8Dd0" />{% endblock %}
 
 {% block style %}
-img {
-    margin: 10px;
-    padding: 0px;
-    max-width: 100%;
-}
-p.description {
-    color: #555;
-    overflow-wrap: break-word;
-}
-h2.title {
-    color: #000;
-}
-li.content_block {
-    display: inline-block;
-    width: 30%;
-}
-a.content_block {
-    text-decoration:none;
-}
+/* Index page specific styles override */
 #main_area {
-    margin-left: 10%;
-    margin-right: 10%;
-    width: 80%;
+    max-width: 1200px; /* Wider for home grid */
 }
 {% endblock %}
 
 
 {% block main %}
-<ul>
+<ul class="card-grid">
     {% for obj in data %}
-    <li class="content_block"><a class="content_block" href="/{{ obj['name'] }}">
-        {% if "img" in obj %}
-            <img src="https://steven-57.github.io/images/{{ obj['img'] }}">
-        {% endif %}
-        <h2 class="title">{{ obj['name'] }}</h2>
-        {% if "description" in obj %}
-            <p class="description">{{ obj['description'] }}</p>
-        {% endif %}
-    </a></li>
+    <li class="card-item">
+        <a class="card-link" href="/{{ obj['name'] }}">
+            {% if "img" in obj %}
+            <div class="card-image-wrapper">
+                <img src="https://steven-57.github.io/images/{{ obj['img'] }}" alt="{{ obj['name'] }}">
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h2 class="card-title">{{ obj['name'] }}</h2>
+                {% if "description" in obj %}
+                    <p class="card-desc">{{ obj['description'] }}</p>
+                {% endif %}
+            </div>
+        </a>
+    </li>
     {% endfor %}
 </ul>
 {% endblock %}

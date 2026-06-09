@@ -1,3 +1,7 @@
 jinja2
 docx2txt
 python-docx
+beautifulsoup4
+lxml
+pillow
+tqdm

@@ -2,37 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+TC:wght@400;600;700&display=swap" rel="stylesheet">
 <meta name="google-site-verification" content="nFvv7wIMTNWYqDs-A3pV_rzlqL1uwhojEpSTLGB8Dd0" />
     <title>Stevenの旅行日誌 - 目錄</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
     <link href="https://steven-57.github.io/style/main.css" rel="stylesheet">
 <style>
 
-img {
-    margin: 10px;
-    padding: 0px;
-    max-width: 100%;
-}
-p.description {
-    color: #555;
-    overflow-wrap: break-word;
-}
-h2.title {
-    color: #000;
-}
-li.content_block {
-    display: inline-block;
-    width: 30%;
-}
-a.content_block {
-    text-decoration:none;
-}
+/* Index page specific styles override */
 #main_area {
-    margin-left: 10%;
-    margin-right: 10%;
-    width: 80%;
+    max-width: 1200px; /* Wider for home grid */
 }
 
 </style>
@@ -58,97 +44,135 @@ a.content_block {
 <div id="indexbar" class="toc"></div>
 <div id="main_area">
   
-<ul>
+<ul class="card-grid">
     
-    <li class="content_block"><a class="content_block" href="/2026Q1九州遊記">
-        
-            <img src="https://steven-57.github.io/images/2026Q1九州遊記.png">
-        
-        <h2 class="title">2026Q1九州遊記</h2>
-        
-            <p class="description">2026/2/9~2026/2/19</p>
-        
-    </a></li>
+    <li class="card-item">
+        <a class="card-link" href="/2025Q3日本北海道旅遊">
+            
+            <div class="card-image-wrapper">
+                <img src="https://steven-57.github.io/images/2025Q3日本北海道旅遊.webp" alt="2025Q3日本北海道旅遊">
+            </div>
+            
+            <div class="card-body">
+                <h2 class="card-title">2025Q3日本北海道旅遊</h2>
+                
+                    <p class="card-desc">2025/7/1~2025/7/10</p>
+                
+            </div>
+        </a>
+    </li>
     
-    <li class="content_block"><a class="content_block" href="/2025Q3日本北海道旅遊">
-        
-            <img src="https://steven-57.github.io/images/2025Q3日本北海道旅遊.png">
-        
-        <h2 class="title">2025Q3日本北海道旅遊</h2>
-        
-            <p class="description">2025/7/1~2025/7/10</p>
-        
-    </a></li>
+    <li class="card-item">
+        <a class="card-link" href="/2025Q2荷比盧旅遊">
+            
+            <div class="card-image-wrapper">
+                <img src="https://steven-57.github.io/images/2025Q2荷比盧旅遊.webp" alt="2025Q2荷比盧旅遊">
+            </div>
+            
+            <div class="card-body">
+                <h2 class="card-title">2025Q2荷比盧旅遊</h2>
+                
+                    <p class="card-desc">2025/4/3~2025/4/15</p>
+                
+            </div>
+        </a>
+    </li>
     
-    <li class="content_block"><a class="content_block" href="/2025Q2荷比盧旅遊">
-        
-            <img src="https://steven-57.github.io/images/2025Q2荷比盧旅遊.png">
-        
-        <h2 class="title">2025Q2荷比盧旅遊</h2>
-        
-            <p class="description">2025/4/3~2025/4/15</p>
-        
-    </a></li>
+    <li class="card-item">
+        <a class="card-link" href="/2025Q1日本旅遊">
+            
+            <div class="card-image-wrapper">
+                <img src="https://steven-57.github.io/images/2025Q1日本旅遊.webp" alt="2025Q1日本旅遊">
+            </div>
+            
+            <div class="card-body">
+                <h2 class="card-title">2025Q1日本旅遊</h2>
+                
+                    <p class="card-desc">2025/1/26~2025/2/4</p>
+                
+            </div>
+        </a>
+    </li>
     
-    <li class="content_block"><a class="content_block" href="/2025Q1日本旅遊">
-        
-            <img src="https://steven-57.github.io/images/2025Q1日本旅遊.png">
-        
-        <h2 class="title">2025Q1日本旅遊</h2>
-        
-            <p class="description">2025/1/26~2025/2/4</p>
-        
-    </a></li>
+    <li class="card-item">
+        <a class="card-link" href="/2024橫濱東京遊記">
+            
+            <div class="card-image-wrapper">
+                <img src="https://steven-57.github.io/images/2024橫濱東京遊記.webp" alt="2024橫濱東京遊記">
+            </div>
+            
+            <div class="card-body">
+                <h2 class="card-title">2024橫濱東京遊記</h2>
+                
+                    <p class="card-desc">2024/03/26~2024/04/05</p>
+                
+            </div>
+        </a>
+    </li>
     
-    <li class="content_block"><a class="content_block" href="/2024橫濱東京遊記">
-        
-            <img src="https://steven-57.github.io/images/2024橫濱東京遊記.png">
-        
-        <h2 class="title">2024橫濱東京遊記</h2>
-        
-            <p class="description">2024/03/26~2024/04/05</p>
-        
-    </a></li>
+    <li class="card-item">
+        <a class="card-link" href="/富士山番外篇">
+            
+            <div class="card-image-wrapper">
+                <img src="https://steven-57.github.io/images/富士山番外篇.webp" alt="富士山番外篇">
+            </div>
+            
+            <div class="card-body">
+                <h2 class="card-title">富士山番外篇</h2>
+                
+                    <p class="card-desc">2023/12/11~2023/12/17</p>
+                
+            </div>
+        </a>
+    </li>
     
-    <li class="content_block"><a class="content_block" href="/富士山番外篇">
-        
-            <img src="https://steven-57.github.io/images/富士山番外篇.png">
-        
-        <h2 class="title">富士山番外篇</h2>
-        
-            <p class="description">2023/12/11~2023/12/17</p>
-        
-    </a></li>
+    <li class="card-item">
+        <a class="card-link" href="/2023日本甲府遊記">
+            
+            <div class="card-image-wrapper">
+                <img src="https://steven-57.github.io/images/2023日本甲府遊記.webp" alt="2023日本甲府遊記">
+            </div>
+            
+            <div class="card-body">
+                <h2 class="card-title">2023日本甲府遊記</h2>
+                
+                    <p class="card-desc">2023/12/11~2023/12/17</p>
+                
+            </div>
+        </a>
+    </li>
     
-    <li class="content_block"><a class="content_block" href="/2023日本甲府遊記">
-        
-            <img src="https://steven-57.github.io/images/2023日本甲府遊記.png">
-        
-        <h2 class="title">2023日本甲府遊記</h2>
-        
-            <p class="description">2023/12/11~2023/12/17</p>
-        
-    </a></li>
+    <li class="card-item">
+        <a class="card-link" href="/2023日本東京遊記">
+            
+            <div class="card-image-wrapper">
+                <img src="https://steven-57.github.io/images/2023日本東京遊記.webp" alt="2023日本東京遊記">
+            </div>
+            
+            <div class="card-body">
+                <h2 class="card-title">2023日本東京遊記</h2>
+                
+                    <p class="card-desc">2023/7/21~2023/7/30</p>
+                
+            </div>
+        </a>
+    </li>
     
-    <li class="content_block"><a class="content_block" href="/2023日本東京遊記">
-        
-            <img src="https://steven-57.github.io/images/2023日本東京遊記.png">
-        
-        <h2 class="title">2023日本東京遊記</h2>
-        
-            <p class="description">2023/7/21~2023/7/30</p>
-        
-    </a></li>
-    
-    <li class="content_block"><a class="content_block" href="/2023土耳其遊記">
-        
-            <img src="https://steven-57.github.io/images/2023土耳其遊記.png">
-        
-        <h2 class="title">2023土耳其遊記</h2>
-        
-            <p class="description">2023/1/21~2023/2/2</p>
-        
-    </a></li>
+    <li class="card-item">
+        <a class="card-link" href="/2023土耳其遊記">
+            
+            <div class="card-image-wrapper">
+                <img src="https://steven-57.github.io/images/2023土耳其遊記.webp" alt="2023土耳其遊記">
+            </div>
+            
+            <div class="card-body">
+                <h2 class="card-title">2023土耳其遊記</h2>
+                
+                    <p class="card-desc">2023/1/21~2023/2/2</p>
+                
+            </div>
+        </a>
+    </li>
     
 </ul>
 

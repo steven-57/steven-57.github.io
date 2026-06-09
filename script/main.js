@@ -119,11 +119,11 @@ for (let group of document.querySelectorAll('.image-container')) {
     }
     let total_width = 0;
     for (let image of images) {
-        let width = +$(image).data("width")*min_height/+$(image).data("height");
+        let width = +$(image).data("width");
         total_width += width;
     }
     let mul = 1;
-    mul = max_width/total_width;
+    if (total_width>max_width) mul = max_width/total_width;
     for (let image of images) {
         let w = +$(image).data("width");
         let h = +$(image).data("height");
@@ -139,15 +139,31 @@ for (let image of document.querySelectorAll('img[data-src]')) {
         height = height/width*max_width;
         width = max_width;
     }
-    $(image).css("width",width/max_width*100+"%");
-    $(image).css("aspect-ratio",width+"/"+height);
+    $(image).css("height",height+"px");
+    $(image).css("width",width+"px");
+    let wrapper = $(image).parent('a.image-wrapper');
+    if (wrapper.length) {
+        wrapper.css("height",height+"px");
+        wrapper.css("width",width+"px");
+    }
     img_watcher.observe(image);
 }
+Fancybox.bind('[data-fancybox="gallery"]', {
+    Toolbar: {
+        display: {
+            left: ["infobar"],
+            middle: [
+                "zoomIn",
+                "zoomOut",
+                "toggle1to1",
+            ],
+            right: ["slideshow", "thumbs", "close"],
+        },
+    },
+});
 if (!(location.href.endsWith("/") || location.href.endsWith("/index"))) {
     initindex();
 }
-main.css("margin-top",($("#top_area").height()+4)+"px");
-$("#indexbar").css("margin-top",($("#top_area").height()+24)+"px");
 $("a").each(function(){
     let to = $(this).attr("href");
     if (((to.includes(".")&&(!to.startsWith(".")))||to.startsWith("http://")||to.startsWith("https://"))&&(!to.includes("steven-57.github.io"))){
