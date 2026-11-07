@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import hashlib
+import io
 import json
 import os
+import posixpath
 import re
 import shutil
 import urllib.parse
 import zipfile
 
-import docx2txt
 from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 from lxml import etree
@@ -23,6 +24,48 @@ def getimgdata(name: str, path: str):
     filename = os.path.join("images", name, path)
     img = Image.open(filename)
     return {"path": path, "width": img.width, "height": img.height}
+
+
+def extract_image(docx_zip, info, image_folder, max_width=1200):
+    """依 Word 中的裁切/旋轉/翻轉設定輸出 webp，回傳檔名"""
+    stem = posixpath.splitext(posixpath.basename(info["media"]))[0]
+    suffix = ""
+    if info["crop"]:
+        suffix += "_c" + "-".join(map(str, info["crop"]))
+    if info["rot"]:
+        suffix += f"_r{info['rot']}"
+    if info["flipH"]:
+        suffix += "_fh"
+    if info["flipV"]:
+        suffix += "_fv"
+    webp_img = stem + suffix + ".webp"
+    webp_path = os.path.join(image_folder, webp_img)
+    if os.path.exists(webp_path):
+        return webp_img
+    with Image.open(io.BytesIO(docx_zip.read(info["media"]))) as im:
+        im.load()
+        if info["crop"]:
+            l, t, r, b = info["crop"]
+            w, h = im.size
+            box = (round(w * l / 100000), round(h * t / 100000),
+                   round(w * (1 - r / 100000)), round(h * (1 - b / 100000)))
+            box = (max(box[0], 0), max(box[1], 0), min(box[2], w), min(box[3], h))
+            if box[2] > box[0] and box[3] > box[1]:
+                im = im.crop(box)
+        if info["flipH"]:
+            im = im.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+        if info["flipV"]:
+            im = im.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+        if info["rot"]:
+            # Word 的 rot 為順時針，PIL 為逆時針
+            im = im.rotate(-info["rot"], expand=True)
+        if im.width > max_width:
+            ratio = max_width / im.width
+            im = im.resize((max_width, int(im.height * ratio)), Image.Resampling.LANCZOS)
+        if im.mode != "RGB":
+            im = im.convert("RGB")
+        im.save(webp_path, 'WEBP', quality=80)
+    return webp_img
 
 
 def get_file_hash(file_path):
@@ -58,20 +101,53 @@ def parse_docx_with_lxml(filepath):
     with zipfile.ZipFile(filepath) as docx_zip:
         with docx_zip.open('word/document.xml') as f:
             tree = etree.parse(f, parser=parser)
+        with docx_zip.open('word/_rels/document.xml.rels') as f:
+            rels_tree = etree.parse(f, parser=parser)
+    rels = {}
+    for rel in rels_tree.getroot():
+        target_path = rel.get("Target", "")
+        if rel.get("TargetMode") == "External":
+            continue
+        rels[rel.get("Id")] = posixpath.normpath(posixpath.join("word", target_path))
 
     # 定義 namespaces
     namespaces = {
         "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
         "pic": "http://schemas.openxmlformats.org/drawingml/2006/picture",
-        "wpg": "http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
+        "wpg": "http://schemas.microsoft.com/office/word/2010/wordprocessingGroup",
+        "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
+        "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+        "mc": "http://schemas.openxmlformats.org/markup-compatibility/2006",
     }
+
+    def pic_info(pic):
+        blip = pic.xpath("./pic:blipFill/a:blip", namespaces=namespaces)
+        if not blip:
+            return None
+        rid = blip[0].get(f"{{{namespaces['r']}}}embed")
+        if rid not in rels:
+            return None
+        info = {"media": rels[rid], "rot": 0, "flipH": False, "flipV": False, "crop": None}
+        xfrm = pic.xpath("./pic:spPr/a:xfrm", namespaces=namespaces)
+        if xfrm:
+            info["rot"] = int(xfrm[0].get("rot", "0")) // 60000 % 360
+            info["flipH"] = xfrm[0].get("flipH") in ("1", "true")
+            info["flipV"] = xfrm[0].get("flipV") in ("1", "true")
+        src = pic.xpath("./pic:blipFill/a:srcRect", namespaces=namespaces)
+        if src:
+            crop = tuple(int(src[0].get(k, "0")) for k in ("l", "t", "r", "b"))
+            if any(crop):
+                info["crop"] = crop
+        return info
 
     paragraphs = tree.xpath("//w:p", namespaces=namespaces)
 
     for p in paragraphs:
-        xml_string = etree.tostring(p, encoding="unicode")
-        cnt = xml_string.count("<pic:nvPicPr>")
-        gp = "<wpg:wgp>" in xml_string
+        # mc:Fallback 內是舊版相容用的重複內容，略過
+        pics = [pic_info(pic) for pic in p.xpath(".//pic:pic[not(ancestor::mc:Fallback)]", namespaces=namespaces)]
+        pics = [x for x in pics if x]
+        cnt = len(pics)
+        gp = bool(p.xpath(".//wpg:wgp[not(ancestor::mc:Fallback)]", namespaces=namespaces))
 
         o = {"txt": "".join(p.xpath(".//w:t/text()", namespaces=namespaces)), "l": []}
 
@@ -107,7 +183,7 @@ def parse_docx_with_lxml(filepath):
 
             o["l"].append([text, get_class(style)])
 
-        data.append([o, cnt, gp])
+        data.append([o, cnt, gp, pics])
 
     return data, styles
 
@@ -145,46 +221,24 @@ def render(name: str, years: dict):
                     para_cmd.append(cmd)
     data, styles = parse_docx_with_lxml(os.path.join(source, name + '.docx'))
     image_folder = os.path.join(image, name)
-    if not os.path.exists(image_folder):
-        os.makedirs(image_folder)
-        docx2txt.process(os.path.join(source, name + '.docx'), image_folder)
-    all_imgs = os.listdir(image_folder)
-    all_imgs.sort(key=lambda x: int(x[5:x.find('.')]))
+    os.makedirs(image_folder, exist_ok=True)
     imgs = []
-    used_hash = set()
-    for img in all_imgs:
-        img_path = os.path.join(image_folder, img)
-        hash_val = get_file_hash(img_path)
-        if hash_val in used_hash:
-            continue
-        used_hash.add(hash_val)
-
-        if not img.endswith('.webp'):
-            try:
-                with Image.open(img_path) as im:
-                    max_width = 1200
-                    if im.width > max_width:
-                        ratio = max_width / im.width
-                        new_height = int(im.height * ratio)
-                        im = im.resize((max_width, new_height), Image.Resampling.LANCZOS)
-                    
-                    webp_img = os.path.splitext(img)[0] + '.webp'
-                    webp_path = os.path.join(image_folder, webp_img)
-                    if im.mode in ("RGBA", "P"): 
-                        im = im.convert("RGB")
-                    im.save(webp_path, 'WEBP', quality=80)
-                
-                os.remove(img_path)
-                img = webp_img
-            except Exception as e:
-                print(f"Error optimizing {img}: {e}")
-
-        imgs.append(img)
+    used_files = set()
+    with zipfile.ZipFile(os.path.join(source, name + '.docx')) as docx_zip:
+        for _, _, _, pics in data:
+            for info in pics:
+                img = extract_image(docx_zip, info, image_folder)
+                imgs.append(img)
+                used_files.add(img)
+    # 移除不再使用的舊圖片
+    for f in os.listdir(image_folder):
+        if f not in used_files:
+            os.remove(os.path.join(image_folder, f))
     it = 0
     out = []
     okbr = True
     wait_eximg = None
-    for o, cnt, gp in data:
+    for o, cnt, gp, pics in data:
         if o["txt"]:
             o["tag"] = "p"
             for cmd in para_cmd:
@@ -213,7 +267,7 @@ def render(name: str, years: dict):
         for idx in range(cnt):
             if it >= len(imgs):
                 break
-            base_img_name = os.path.splitext(imgs[it])[0]
+            base_img_name = os.path.splitext(imgs[it])[0].split("_")[0]
             cmd = img_cmd.get(base_img_name, None)
             if cmd:
                 if cmd["type"] == "eximg":
